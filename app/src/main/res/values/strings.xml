@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Github Repository</string>
+    <string name="et_search_hint">Search for repository…</string>
+    <string name="menu_search_item">Search</string>
+</resources>
