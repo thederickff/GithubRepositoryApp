@@ -3,4 +3,6 @@
     <color name="colorPrimary">#ff700a</color>
     <color name="colorPrimaryDark">#dd5d02</color>
     <color name="colorAccent">#ff0a1e</color>
+
+    <color name="rv_item_color">#0366d6</color>
 </resources>

@@ -2,4 +2,10 @@
     <string name="app_name">Github Repository</string>
     <string name="et_search_hint">Search for repository…</string>
     <string name="menu_search_item">Search</string>
+    <string name="github_repository_description">A sentence which represents a description, used for development</string>
+    <string name="github_repository_title">github/repository</string>
+    <string name="star_icon_description">Star icon</string>
+    <string name="github_repository_stargazers">32</string>
+    <string name="repository_programming_language">Python</string>
+    <string name="repository_language_label">Language:</string>
 </resources>

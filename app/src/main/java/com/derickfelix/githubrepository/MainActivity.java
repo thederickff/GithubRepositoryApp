@@ -3,21 +3,32 @@ package com.derickfelix.githubrepository;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.derickfelix.githubrepository.factories.JsonFactory;
+import com.derickfelix.githubrepository.models.GithubRepository;
 import com.derickfelix.githubrepository.utils.NetworkUtil;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private EditText mSearchEditText;
-    private TextView mQueryResultTextView;
+    private RecyclerView mQueryResultRecyclerView;
+
+    private List<GithubRepository> mGithubRepositories;
+    private RepositoryAdapter mRepositoryAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -25,8 +36,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mGithubRepositories = new ArrayList<>();
+        mRepositoryAdapter = new RepositoryAdapter(mGithubRepositories);
+
         mSearchEditText = findViewById(R.id.et_search);
-        mQueryResultTextView = findViewById(R.id.tv_query_result);
+        mQueryResultRecyclerView = findViewById(R.id.rv_query_result);
+
+        mQueryResultRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mQueryResultRecyclerView.addItemDecoration(new DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL));
+        mQueryResultRecyclerView.setHasFixedSize(true);
+        mQueryResultRecyclerView.setAdapter(mRepositoryAdapter);
     }
 
     @Override
@@ -81,9 +101,12 @@ public class MainActivity extends AppCompatActivity {
         {
             super.onPostExecute(s);
 
-            mQueryResultTextView.setText(s);
+            mGithubRepositories = JsonFactory.githubRepositories(s);
+            mRepositoryAdapter.update(mGithubRepositories);
+
             Toast.makeText(MainActivity.this, "Response fetched successfully!", Toast.LENGTH_SHORT).show();
         }
 
     }
+
 }
