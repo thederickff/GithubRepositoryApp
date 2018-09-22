@@ -1,5 +1,6 @@
 package com.derickfelix.githubrepository;
 
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -7,6 +8,11 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.derickfelix.githubrepository.utils.NetworkUtil;
+
+import java.io.IOException;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-
         return true;
     }
 
@@ -36,10 +41,49 @@ public class MainActivity extends AppCompatActivity {
     {
         switch (item.getItemId()) {
             case R.id.mi_search:
-                Toast.makeText(this, "Search Repository!", Toast.LENGTH_SHORT).show();
+                makeQuery(mSearchEditText.getText().toString());
                 break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void makeQuery(String query)
+    {
+        URL url = NetworkUtil.buildUrl(query);
+
+        new GithubQueryTask().execute(url);
+    }
+
+
+    private class GithubQueryTask extends AsyncTask<URL, Void, String> {
+
+        @Override
+        protected String doInBackground(URL... urls)
+        {
+            if (urls == null) {
+                return null;
+            }
+
+            URL url = urls[0];
+
+            try {
+                return NetworkUtil.getResponseFromHttpUrl(url);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s)
+        {
+            super.onPostExecute(s);
+
+            mQueryResultTextView.setText(s);
+            Toast.makeText(MainActivity.this, "Response fetched successfully!", Toast.LENGTH_SHORT).show();
+        }
+
     }
 }
