@@ -8,8 +8,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,8 +26,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private EditText mSearchEditText;
+    private TextView mErrorMessage;
     private RecyclerView mQueryResultRecyclerView;
-
+    private ProgressBar mLoadingIndicatorProgressBar;
     private List<GithubRepository> mGithubRepositories;
     private RepositoryAdapter mRepositoryAdapter;
 
@@ -40,7 +42,9 @@ public class MainActivity extends AppCompatActivity {
         mRepositoryAdapter = new RepositoryAdapter(mGithubRepositories);
 
         mSearchEditText = findViewById(R.id.et_search);
+        mErrorMessage = findViewById(R.id.tv_error_message);
         mQueryResultRecyclerView = findViewById(R.id.rv_query_result);
+        mLoadingIndicatorProgressBar = findViewById(R.id.pb_loading_indicator);
 
         mQueryResultRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mQueryResultRecyclerView.addItemDecoration(new DividerItemDecoration(this,
@@ -79,6 +83,13 @@ public class MainActivity extends AppCompatActivity {
     private class GithubQueryTask extends AsyncTask<URL, Void, String> {
 
         @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            mLoadingIndicatorProgressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
         protected String doInBackground(URL... urls)
         {
             if (urls == null) {
@@ -101,12 +112,34 @@ public class MainActivity extends AppCompatActivity {
         {
             super.onPostExecute(s);
 
-            mGithubRepositories = JsonFactory.githubRepositories(s);
-            mRepositoryAdapter.update(mGithubRepositories);
+            mLoadingIndicatorProgressBar.setVisibility(View.INVISIBLE);
 
-            Toast.makeText(MainActivity.this, "Response fetched successfully!", Toast.LENGTH_SHORT).show();
+            if (s != null) {
+                mGithubRepositories = JsonFactory.githubRepositories(s);
+                mRepositoryAdapter.update(mGithubRepositories);
+
+                showResult();
+
+                Toast.makeText(MainActivity.this, "Response fetched successfully!", Toast.LENGTH_SHORT).show();
+            } else {
+                showError();
+            }
+
+
         }
 
+    }
+
+    private void showResult()
+    {
+        mErrorMessage.setVisibility(View.INVISIBLE);
+        mQueryResultRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void showError()
+    {
+        mQueryResultRecyclerView.setVisibility(View.INVISIBLE);
+        mErrorMessage.setVisibility(View.VISIBLE);
     }
 
 }
